@@ -62,8 +62,14 @@ void CNavmesh::AddNewEdge(const sf::Vector2f & aFrom, const sf::Vector2f & aTo)
 
 void CNavmesh::Render(sf::RenderWindow * aWindow)
 {
+	int triCount = 0, verCount = 0, edgCount = 0;
 	for (unsigned i = 0; i < myTris.size(); ++i)
 	{
+		if (myTris[i].myIsActive == false || myTris[i].myEdges[0] == nullptr || myTris[i].myEdges[1] == nullptr || myTris[i].myEdges[2] == nullptr)
+			continue;
+
+		++triCount;
+
 		sf::VertexArray triangle;
 		triangle.append(myTris[i].myEdges[0]->myVertices[0]->myPosition);
 		triangle.append(myTris[i].myEdges[1]->myVertices[0]->myPosition);
@@ -75,27 +81,32 @@ void CNavmesh::Render(sf::RenderWindow * aWindow)
 
 	for (unsigned i = 0; i < myEdges.size(); ++i)
 	{
-		myLineDrawer.DrawLine(myEdges[i].myVertices[0]->myPosition, myEdges[i].myVertices[1]->myPosition);
-		if (myEdges[i].myIsPlacedInFoundVector)
-			myLineDrawer.DrawLine(myEdges[i].myVertices[0]->myPosition, myEdges[i].myVertices[1]->myPosition, { 255, 0, 0, 255 });
+		if (myEdges[i].myIsActive)
+		{
+			++edgCount;
+			myLineDrawer.DrawLine(myEdges[i].myVertices[0]->myPosition, myEdges[i].myVertices[1]->myPosition);
+			if (myEdges[i].myIsPlacedInFoundVector)
+				myLineDrawer.DrawLine(myEdges[i].myVertices[0]->myPosition, myEdges[i].myVertices[1]->myPosition, { 255, 0, 0, 255 });
+		}
 	}
 
 	for (unsigned i = 0; i < myVertices.size(); ++i)
 	{
+		++verCount;
 		myCircle.setPosition(myVertices[i].myPosition);
 		aWindow->draw(myCircle);
 	}
 
 	myText.setPosition(10.f, 10.f);
-	myText.setString("Tris: " + std::to_string(myTris.size()));
+	myText.setString("Tris: " + std::to_string(triCount));
 	aWindow->draw(myText);
 
 	myText.setPosition(10.f, 30.f);
-	myText.setString("Vertices: " + std::to_string(myVertices.size()));
+	myText.setString("Vertices: " + std::to_string(verCount));
 	aWindow->draw(myText);
 
 	myText.setPosition(10.f, 50.f);
-	myText.setString("Edges: " + std::to_string(myEdges.size()));
+	myText.setString("Edges: " + std::to_string(edgCount));
 	aWindow->draw(myText);
 }
 
@@ -104,12 +115,15 @@ std::vector<CNavmesh::SEdge*> CNavmesh::GetIntersectingEdgesWith(Math::SLineSegm
 	std::vector<SEdge*> rv;
 	for (int i = 0; i < myEdges.size(); ++i)
 	{
-		Math::SLineSegment line({ myEdges[i].myVertices[0]->myPosition, myEdges[i].myVertices[1]->myPosition });
-		if (Math::CheckCollisionBetweenLines(line, aLine, myEdges[i].myIntersectionPoint))
+		if (myEdges[i].myIsActive)
 		{
-			rv.push_back(&myEdges[i]);
-			myEdges[i].myShouldSplit = true;
-			myEdges[i].myIsPlacedInFoundVector = true;
+			Math::SLineSegment line({ myEdges[i].myVertices[0]->myPosition, myEdges[i].myVertices[1]->myPosition });
+			if (Math::CheckCollisionBetweenLines(line, aLine, myEdges[i].myIntersectionPoint))
+			{
+				rv.push_back(&myEdges[i]);
+				myEdges[i].myShouldSplit = true;
+				myEdges[i].myIsPlacedInFoundVector = true;
+			}
 		}
 	}
 
@@ -199,6 +213,7 @@ void CNavmesh::AddExtendedLineCollidingEdges(std::vector<SEdge*>& aCurrentEdgesG
 
 void CNavmesh::SplitEdge(SEdge * aEdge, const sf::Vector2f & aSplitPos)
 {
+	aEdge->myIsActive = false;
 	sf::Vector2f previousStartPos = aEdge->myVertices[0]->myPosition;
 	//aEdge->myVertices[0]->myPosition = aSplitPos;
 
@@ -219,6 +234,9 @@ void CNavmesh::SplitEdge(SEdge * aEdge, const sf::Vector2f & aSplitPos)
 		SVertex* vertex = nullptr;
 		for (SEdge* edge : tri->myEdges)
 		{
+			if (edge == nullptr)
+				continue;
+
 			if (edge->myVertices[0]->myPosition != aEdge->myVertices[0]->myPosition && edge->myVertices[0]->myPosition != aEdge->myVertices[1]->myPosition)
 			{
 				vertex = edge->myVertices[0];
@@ -227,7 +245,33 @@ void CNavmesh::SplitEdge(SEdge * aEdge, const sf::Vector2f & aSplitPos)
 		
 		if (vertex != nullptr)
 		{
-			myEdges.push_back(SEdge(&myVertices.back(), vertex));
+			myEdges.push_back(SEdge(vertex, &myVertices.back()));
+
+			for (int i = 0; i < 2; ++i)
+			{
+				STriangle newTri(nullptr, nullptr, nullptr);
+
+				newTri.myEdges[0] = &myEdges[myEdges.size() - 2 - i];
+				newTri.myEdges[1] = &myEdges.back();
+				for (SEdge* edge : tri->myEdges)
+				{
+					if (edge->myVertices[0] == myEdges.back().myVertices[0] || edge->myVertices[1] == myEdges.back().myVertices[0] || edge->myVertices[0] == myEdges.back().myVertices[1] || edge->myVertices[1] == myEdges.back().myVertices[1])
+					{
+						if (edge->myVertices[0] == myEdges[myEdges.size() - 2 - i].myVertices[0] || edge->myVertices[1] == myEdges[myEdges.size() - 2 - i].myVertices[0] || edge->myVertices[0] == myEdges[myEdges.size() - 2 - i].myVertices[1] || edge->myVertices[1] == myEdges[myEdges.size() - 2 - i].myVertices[1])
+						{
+							newTri.myEdges[2] = edge;
+						}
+					}
+				}
+
+				myTris.push_back(newTri);
+				myTris.back().myColor = sf::Color(Math::RandomFloat(), Math::RandomFloat(), Math::RandomFloat(), 255);
+			}
+			
+			//tri->myEdges[0] = nullptr;
+			//tri->myEdges[1] = nullptr;
+			//tri->myEdges[2] = nullptr;
+			tri->myIsActive = false;
 		}
 	}
 

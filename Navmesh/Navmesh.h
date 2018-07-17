@@ -47,6 +47,7 @@ public:
 		bool myShouldSplit = false;
 
 		bool myIsPlacedInFoundVector = false;
+		bool myIsActive = true;
 	};
 
 	struct STriangle
@@ -65,6 +66,7 @@ public:
 
 		std::array<SEdge*, EDGE_COUNT> myEdges;
 		sf::Color myColor;
+		bool myIsActive = true;
 	};
 
 public:
