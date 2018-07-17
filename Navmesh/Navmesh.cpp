@@ -84,18 +84,6 @@ void CNavmesh::Render(sf::RenderWindow * aWindow)
 	}
 }
 
-void CNavmesh::CalculateTris()
-{
-	myTris.clear();
-	for (SEdge& edge : myEdges)
-	{
-		edge.myOwnerTriangle[0] = nullptr;
-		edge.myOwnerTriangle[1] = nullptr;
-	}
-
-
-}
-
 std::vector<CNavmesh::SEdge*> CNavmesh::GetIntersectingEdgesWith(Math::SLineSegment& aLine)
 {
 	std::vector<SEdge*> rv;

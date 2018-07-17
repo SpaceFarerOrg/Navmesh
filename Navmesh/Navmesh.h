@@ -54,6 +54,12 @@ public:
 			myEdges[1] = aTwo;
 			myEdges[2] = aThree;
 		}
+
+		bool operator==(const STriangle& aOther)
+		{
+			return myEdges[0] == aOther.myEdges[0] && myEdges[1] == aOther.myEdges[1] && myEdges[2] == aOther.myEdges[2];
+		}
+
 		std::array<SEdge*, EDGE_COUNT> myEdges;
 		sf::Color myColor;
 	};
@@ -63,8 +69,6 @@ public:
 	void AddNewEdge(const sf::Vector2f& aFrom,const sf::Vector2f& aTo);
 	void Render(sf::RenderWindow* aWindow);
 private:
-	void CalculateTris();
-
 	std::vector<SEdge*> GetIntersectingEdgesWith(Math::SLineSegment& aLine);
 	void AddExtendedLineCollidingEdges(std::vector<SEdge*>& aCurrentEdgesGotten, const sf::Vector2f& aTo, const sf::Vector2f& aFrom);
 
