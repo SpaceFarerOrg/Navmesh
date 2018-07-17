@@ -1,6 +1,7 @@
 #pragma once
 #include "Navmesh.h"
 #include "SFML/System/Vector2.hpp"
+#include <random>
 
 namespace Math
 {
@@ -135,6 +136,11 @@ namespace Math
 
 	static float RandomFloat()
 	{
-		return 1.f;
+		std::random_device device;
+		std::mt19937 generator(device());
+		std::uniform_real_distribution<float> distributor(0.f, 1.f);
+
+		float val = distributor(generator);
+		return val;
 	}
 }
