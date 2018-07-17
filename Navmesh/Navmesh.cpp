@@ -81,6 +81,18 @@ void CNavmesh::Render(sf::RenderWindow * aWindow)
 	}
 }
 
+void CNavmesh::CalculateTris()
+{
+	myTris.clear();
+	for (SEdge& edge : myEdges)
+	{
+		edge.myOwnerTriangle[0] = nullptr;
+		edge.myOwnerTriangle[1] = nullptr;
+	}
+
+
+}
+
 std::vector<CNavmesh::SEdge*> CNavmesh::GetIntersectingEdgesWith(Math::SLineSegment& aLine)
 {
 	std::vector<SEdge*> rv;
@@ -179,10 +191,10 @@ void CNavmesh::AddExtendedLineCollidingEdges(std::vector<SEdge*>& aCurrentEdgesG
 void CNavmesh::SplitEdge(SEdge * aEdge, const sf::Vector2f & aSplitPos)
 {
 	sf::Vector2f previousStartPos = aEdge->myVertices[0]->myPosition;
-	//aEdge->myVertices[0]->myPosition = aSplitPos;
+	aEdge->myVertices[0]->myPosition = aSplitPos;
 	myVertices.push_back(SVertex(previousStartPos.x, previousStartPos.y));
 	myVertices.push_back(SVertex(aSplitPos.x, aSplitPos.y));
-	//myEdges.push_back(SEdge(&myVertices[myVertices.size() - 1], &myVertices[myVertices.size() - 2]));
+	myEdges.push_back(SEdge(&myVertices[myVertices.size() - 1], &myVertices[myVertices.size() - 2]));
 }
 
 

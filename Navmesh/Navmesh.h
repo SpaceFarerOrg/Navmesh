@@ -63,6 +63,8 @@ public:
 	void AddNewEdge(const sf::Vector2f& aFrom,const sf::Vector2f& aTo);
 	void Render(sf::RenderWindow* aWindow);
 private:
+	void CalculateTris();
+
 	std::vector<SEdge*> GetIntersectingEdgesWith(Math::SLineSegment& aLine);
 	void AddExtendedLineCollidingEdges(std::vector<SEdge*>& aCurrentEdgesGotten, const sf::Vector2f& aTo, const sf::Vector2f& aFrom);
 
