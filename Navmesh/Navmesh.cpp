@@ -7,14 +7,14 @@ void CNavmesh::Init()
 {
 	const float distanceFromEdge = 128;
 
-	myVertices.reserve(1000*3);
-	myEdges.reserve(1000*3);
-	myTris.reserve(1000*3);
+	myVertices.reserve(1000 * 3);
+	myEdges.reserve(1000 * 3);
+	myTris.reserve(1000 * 3);
 
 	myVertices.push_back({ 0 + distanceFromEdge, 0 + distanceFromEdge });
-	myVertices.push_back({ 1600-distanceFromEdge, 0 + distanceFromEdge });
+	myVertices.push_back({ 1600 - distanceFromEdge, 0 + distanceFromEdge });
 	myVertices.push_back({ 1600 - distanceFromEdge, 900 - distanceFromEdge });
-	myVertices.push_back({ 0+ distanceFromEdge, 900 - distanceFromEdge });
+	myVertices.push_back({ 0 + distanceFromEdge, 900 - distanceFromEdge });
 
 	myEdges.push_back({ &myVertices[0],&myVertices[1] });
 	myEdges.push_back({ &myVertices[1],&myVertices[2] });
@@ -77,7 +77,7 @@ void CNavmesh::Render(sf::RenderWindow * aWindow)
 	{
 		myLineDrawer.DrawLine(myEdges[i].myVertices[0]->myPosition, myEdges[i].myVertices[1]->myPosition);
 		if (myEdges[i].myIsPlacedInFoundVector)
-			myLineDrawer.DrawLine(myEdges[i].myVertices[0]->myPosition, myEdges[i].myVertices[1]->myPosition, {255, 0, 0, 255});
+			myLineDrawer.DrawLine(myEdges[i].myVertices[0]->myPosition, myEdges[i].myVertices[1]->myPosition, { 255, 0, 0, 255 });
 	}
 
 	for (unsigned i = 0; i < myVertices.size(); ++i)
@@ -108,6 +108,7 @@ std::vector<CNavmesh::SEdge*> CNavmesh::GetIntersectingEdgesWith(Math::SLineSegm
 		if (Math::CheckCollisionBetweenLines(line, aLine, myEdges[i].myIntersectionPoint))
 		{
 			rv.push_back(&myEdges[i]);
+			myEdges[i].myShouldSplit = true;
 			myEdges[i].myIsPlacedInFoundVector = true;
 		}
 	}
@@ -119,7 +120,7 @@ void CNavmesh::AddExtendedLineCollidingEdges(std::vector<SEdge*>& aCurrentEdgesG
 {
 	STriangle* startTriangle = nullptr;
 	STriangle* endTriangle = nullptr;
-	
+
 	//Loop through all edges collected (intersecting with line segment)
 	for (unsigned i = 0; i < aCurrentEdgesGotten.size(); ++i)
 	{
@@ -163,12 +164,13 @@ void CNavmesh::AddExtendedLineCollidingEdges(std::vector<SEdge*>& aCurrentEdgesG
 	{
 		if (startTriangle == nullptr)
 			break;
-	
+
 		if (startTriangle->myEdges[i]->myIsPlacedInFoundVector == false)
 		{
 			if (Math::CheckCollisionBetweenLines(fakeRay, { startTriangle->myEdges[i]->myVertices[0]->myPosition, startTriangle->myEdges[i]->myVertices[1]->myPosition }, startTriangle->myEdges[i]->myIntersectionPoint))
 			{
 				aCurrentEdgesGotten.back() = startTriangle->myEdges[i];
+				startTriangle->myEdges[i]->myShouldSplit = true;
 				aCurrentEdgesGotten.back()->myIsPlacedInFoundVector = true;
 				break;
 			}
@@ -187,6 +189,7 @@ void CNavmesh::AddExtendedLineCollidingEdges(std::vector<SEdge*>& aCurrentEdgesG
 			if (Math::CheckCollisionBetweenLines(fakeRay, { endTriangle->myEdges[i]->myVertices[0]->myPosition, endTriangle->myEdges[i]->myVertices[1]->myPosition }, endTriangle->myEdges[i]->myIntersectionPoint))
 			{
 				aCurrentEdgesGotten.back() = endTriangle->myEdges[i];
+				endTriangle->myEdges[i]->myShouldSplit = true;
 				aCurrentEdgesGotten.back()->myIsPlacedInFoundVector = true;
 				break;
 			}
@@ -206,9 +209,36 @@ void CNavmesh::SplitEdge(SEdge * aEdge, const sf::Vector2f & aSplitPos)
 	myEdges.push_back(SEdge(&myVertices.back(), aEdge->myVertices[0]));
 	myEdges.push_back(SEdge(&myVertices.back(), aEdge->myVertices[1]));
 
+	for (STriangle* tri : aEdge->myOwnerTriangle)
+	{
+		if (tri == nullptr)
+		{
+			continue;
+		}
+
+		SVertex* vertex = nullptr;
+		for (SEdge* edge : tri->myEdges)
+		{
+			if (edge->myVertices[0]->myPosition != aEdge->myVertices[0]->myPosition && edge->myVertices[0]->myPosition != aEdge->myVertices[1]->myPosition)
+			{
+				vertex = edge->myVertices[0];
+			}
+		}
+		
+		if (vertex != nullptr)
+		{
+			myEdges.push_back(SEdge(&myVertices.back(), vertex));
+		}
+	}
+
 	std::array<SEdge*, 2> createdEdges;
 	createdEdges[0] = &myEdges[myEdges.size() - 1];
 	createdEdges[0] = &myEdges[myEdges.size() - 2];
+
+	//Find triangle that has no should split
+
+
+
 
 }
 

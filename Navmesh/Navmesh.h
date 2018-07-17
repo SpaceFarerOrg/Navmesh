@@ -44,6 +44,7 @@ public:
 		std::array<STriangle*, 2> myOwnerTriangle = { nullptr, nullptr };
 
 		sf::Vector2f myIntersectionPoint;
+		bool myShouldSplit = false;
 
 		bool myIsPlacedInFoundVector = false;
 	};
