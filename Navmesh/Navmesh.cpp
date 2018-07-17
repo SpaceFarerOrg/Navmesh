@@ -249,7 +249,8 @@ void CNavmesh::SplitEdge(SEdge * aEdge, const sf::Vector2f & aSplitPos)
 
 			for (int i = 0; i < 2; ++i)
 			{
-				STriangle newTri(nullptr, nullptr, nullptr);
+				myTris.push_back(STriangle(nullptr, nullptr, nullptr));
+				STriangle& newTri = myTris.back();
 
 				newTri.myEdges[0] = &myEdges[myEdges.size() - 2 - i];
 				newTri.myEdges[1] = &myEdges.back();
@@ -260,12 +261,16 @@ void CNavmesh::SplitEdge(SEdge * aEdge, const sf::Vector2f & aSplitPos)
 						if (edge->myVertices[0] == myEdges[myEdges.size() - 2 - i].myVertices[0] || edge->myVertices[1] == myEdges[myEdges.size() - 2 - i].myVertices[0] || edge->myVertices[0] == myEdges[myEdges.size() - 2 - i].myVertices[1] || edge->myVertices[1] == myEdges[myEdges.size() - 2 - i].myVertices[1])
 						{
 							newTri.myEdges[2] = edge;
+
+							newTri.myEdges[0]->myOwnerTriangle[0] = &myTris.back();
+							newTri.myEdges[1]->myOwnerTriangle[0] = &myTris.back();
+							newTri.myEdges[2]->myOwnerTriangle[0] = &myTris.back();
 						}
 					}
 				}
-
-				myTris.push_back(newTri);
+				
 				myTris.back().myColor = sf::Color(Math::RandomFloat(), Math::RandomFloat(), Math::RandomFloat(), 255);
+
 			}
 			
 			//tri->myEdges[0] = nullptr;
@@ -274,10 +279,6 @@ void CNavmesh::SplitEdge(SEdge * aEdge, const sf::Vector2f & aSplitPos)
 			tri->myIsActive = false;
 		}
 	}
-
-	std::array<SEdge*, 2> createdEdges;
-	createdEdges[0] = &myEdges[myEdges.size() - 1];
-	createdEdges[0] = &myEdges[myEdges.size() - 2];
 
 	//Find triangle that has no should split
 
