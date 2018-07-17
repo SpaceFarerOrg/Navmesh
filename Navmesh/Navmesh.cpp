@@ -182,10 +182,34 @@ void CNavmesh::AddExtendedLineCollidingEdges(std::vector<SEdge*>& aCurrentEdgesG
 void CNavmesh::SplitEdge(SEdge * aEdge, const sf::Vector2f & aSplitPos)
 {
 	sf::Vector2f previousStartPos = aEdge->myVertices[0]->myPosition;
-	aEdge->myVertices[0]->myPosition = aSplitPos;
-	myVertices.push_back(SVertex(previousStartPos.x, previousStartPos.y));
+	//aEdge->myVertices[0]->myPosition = aSplitPos;
+
+	//myVertices.push_back(SVertex(previousStartPos.x, previousStartPos.y));
 	myVertices.push_back(SVertex(aSplitPos.x, aSplitPos.y));
-	myEdges.push_back(SEdge(&myVertices[myVertices.size() - 1], &myVertices[myVertices.size() - 2]));
+	//myEdges.push_back(SEdge(&myVertices[myVertices.size() - 1], &myVertices[myVertices.size() - 2]));
+
+	myEdges.push_back(SEdge(&myVertices.back(), aEdge->myVertices[0]));
+	myEdges.push_back(SEdge(&myVertices.back(), aEdge->myVertices[1]));
+
+	std::array<SEdge*, 2> createdEdges;
+	createdEdges[0] = &myEdges[myEdges.size() - 1];
+	createdEdges[0] = &myEdges[myEdges.size() - 2];
+
+}
+
+void CNavmesh::RebindEdgesToVertices(SEdge * aOldEdge, std::array<SEdge*, 2>& aNewEdges)
+{
+	for (size_t newEdge = 0; newEdge < aNewEdges.size(); ++newEdge)
+	{
+		for (size_t triangleInEdge = 0; triangleInEdge < 2; ++triangleInEdge)
+		{
+			STriangle* tri = aOldEdge->myOwnerTriangle[triangleInEdge];
+
+			for (size_t edgeInTri = 0; edgeInTri < tri->myEdges.size(); ++edgeInTri)
+			{
+			}
+		}
+	}
 }
 
 

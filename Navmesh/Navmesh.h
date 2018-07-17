@@ -73,6 +73,7 @@ private:
 	void AddExtendedLineCollidingEdges(std::vector<SEdge*>& aCurrentEdgesGotten, const sf::Vector2f& aTo, const sf::Vector2f& aFrom);
 
 	void SplitEdge(SEdge* aEdge, const sf::Vector2f& aSplitPos);
+	void RebindEdgesToVertices(SEdge* aOldEdge, std::array<SEdge*, 2>& aNewEdges);
 
 	CLineDrawer myLineDrawer;
 
