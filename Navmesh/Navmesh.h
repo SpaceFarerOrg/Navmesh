@@ -41,6 +41,8 @@ public:
 		std::array<SVertex*, VERTEX_COUNT> myVertices;
 		std::array<STriangle*, 2> myOwnerTriangle = { nullptr, nullptr };
 
+		sf::Vector2f myIntersectionPoint;
+
 		bool myIsPlacedInFoundVector = false;
 	};
 
@@ -63,6 +65,7 @@ private:
 	std::vector<SEdge*> GetIntersectingEdgesWith(Math::SLineSegment& aLine);
 	void AddExtendedLineCollidingEdges(std::vector<SEdge*>& aCurrentEdgesGotten, const sf::Vector2f& aTo, const sf::Vector2f& aFrom);
 
+	void SplitEdge(SEdge* aEdge, const sf::Vector2f& aSplitPos);
 
 	CLineDrawer myLineDrawer;
 
