@@ -49,13 +49,27 @@ void CNavmesh::AddNewEdge(const sf::Vector2f & aFrom, const sf::Vector2f & aTo)
 
 	for (SEdge*& edge : intersectedEdges)
 	{
-		SplitEdge(edge, edge->myIntersectionPoint);
+		if (edge != nullptr)
+		{
+			SplitEdge(edge, edge->myIntersectionPoint);
+		}
 	}
 
 }
 
 void CNavmesh::Render(sf::RenderWindow * aWindow)
 {
+	for (unsigned i = 0; i < myTris.size(); ++i)
+	{
+		sf::VertexArray triangle;
+		triangle.append(myTris[i].myEdges[0]->myVertices[0]->myPosition);
+		triangle.append(myTris[i].myEdges[1]->myVertices[0]->myPosition);
+		triangle.append(myTris[i].myEdges[2]->myVertices[0]->myPosition);
+
+		myTriangleShader.setUniform("color", sf::Glsl::Vec4(myTris[i].myColor.r / 255.f, myTris[i].myColor.g / 255.f, myTris[i].myColor.b / 255.f, 1.0f));
+		aWindow->draw(&triangle[0], 3, sf::TrianglesStrip, &myTriangleShader);
+	}
+
 	for (unsigned i = 0; i < myEdges.size(); ++i)
 	{
 		myLineDrawer.DrawLine(myEdges[i].myVertices[0]->myPosition, myEdges[i].myVertices[1]->myPosition);
@@ -67,17 +81,6 @@ void CNavmesh::Render(sf::RenderWindow * aWindow)
 	{
 		myCircle.setPosition(myVertices[i].myPosition);
 		aWindow->draw(myCircle);
-	}
-
-	for (unsigned i = 0; i < myTris.size(); ++i)
-	{
-		sf::VertexArray triangle;
-		triangle.append(myTris[i].myEdges[0]->myVertices[0]->myPosition);
-		triangle.append(myTris[i].myEdges[1]->myVertices[0]->myPosition);
-		triangle.append(myTris[i].myEdges[2]->myVertices[0]->myPosition);
-
-		myTriangleShader.setUniform("color", sf::Glsl::Vec4(myTris[i].myColor.r / 255.f, myTris[i].myColor.g / 255.f, myTris[i].myColor.b / 255.f, 1.0f));
-		aWindow->draw(&triangle[0], 3, sf::TrianglesStrip, &myTriangleShader);
 	}
 }
 
