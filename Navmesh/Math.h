@@ -132,4 +132,9 @@ namespace Math
 
 		return true;
 	}
+
+	static float RandomFloat()
+	{
+		return 1.f;
+	}
 }

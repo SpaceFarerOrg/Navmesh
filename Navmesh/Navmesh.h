@@ -5,7 +5,7 @@
 #include "SFML/Graphics/CircleShape.hpp"
 #include "SFML/Graphics/VertexArray.hpp"
 #include "LineDrawer.h"
-
+#include "SFML/Graphics/Shader.hpp"
 
 #define VERTEX_COUNT 2
 #define EDGE_COUNT 3
@@ -74,4 +74,6 @@ private:
 	std::vector<SVertex> myVertices;
 
 	sf::CircleShape myCircle;
+
+	sf::Shader myTriangleShader;
 };

@@ -1,6 +1,7 @@
 #include "Navmesh.h"
 #include "SFML/Graphics/RenderWindow.hpp"
 #include "Math.h"
+#include "SFML/Graphics/Glsl.hpp"
 
 void CNavmesh::Init()
 {
@@ -35,6 +36,8 @@ void CNavmesh::Init()
 	myCircle.setFillColor(sf::Color::Red);
 	myCircle.setRadius(8.f);
 	myCircle.setOrigin(8.f, 8.f);
+
+	myTriangleShader.loadFromFile("triangleShader.vfx", sf::Shader::Fragment);
 }
 
 void CNavmesh::AddNewEdge(const sf::Vector2f & aFrom, const sf::Vector2f & aTo)
@@ -63,6 +66,17 @@ void CNavmesh::Render(sf::RenderWindow * aWindow)
 	{
 		myCircle.setPosition(myVertices[i].myPosition);
 		aWindow->draw(myCircle);
+	}
+
+	for (unsigned i = 0; i < myTris.size(); ++i)
+	{
+		sf::VertexArray triangle;
+		triangle.append(myTris[i].myEdges[0]->myVertices[0]->myPosition);
+		triangle.append(myTris[i].myEdges[1]->myVertices[0]->myPosition);
+		triangle.append(myTris[i].myEdges[2]->myVertices[0]->myPosition);
+
+		myTriangleShader.setUniform("color", sf::Glsl::Vec4(Math::RandomFloat(), Math::RandomFloat(), Math::RandomFloat(),1.f));
+		aWindow->draw(&triangle[0], 3, sf::TrianglesStrip, &myTriangleShader);
 	}
 }
 
@@ -164,10 +178,10 @@ void CNavmesh::AddExtendedLineCollidingEdges(std::vector<SEdge*>& aCurrentEdgesG
 void CNavmesh::SplitEdge(SEdge * aEdge, const sf::Vector2f & aSplitPos)
 {
 	sf::Vector2f previousStartPos = aEdge->myVertices[0]->myPosition;
-	aEdge->myVertices[0]->myPosition = aSplitPos;
+	//aEdge->myVertices[0]->myPosition = aSplitPos;
 	myVertices.push_back(SVertex(previousStartPos.x, previousStartPos.y));
 	myVertices.push_back(SVertex(aSplitPos.x, aSplitPos.y));
-	myEdges.push_back(SEdge(&myVertices[myVertices.size() - 1], &myVertices[myVertices.size() - 2]));
+	//myEdges.push_back(SEdge(&myVertices[myVertices.size() - 1], &myVertices[myVertices.size() - 2]));
 }
 
 
