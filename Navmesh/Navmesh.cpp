@@ -39,6 +39,9 @@ void CNavmesh::Init()
 	myCircle.setOrigin(8.f, 8.f);
 
 	myTriangleShader.loadFromFile("triangleShader.vfx", sf::Shader::Fragment);
+	myFont.loadFromFile("debug.ttf");
+	myText.setFont(myFont);
+	myText.setCharacterSize(16.f);
 }
 
 void CNavmesh::AddNewEdge(const sf::Vector2f & aFrom, const sf::Vector2f & aTo)
@@ -82,6 +85,18 @@ void CNavmesh::Render(sf::RenderWindow * aWindow)
 		myCircle.setPosition(myVertices[i].myPosition);
 		aWindow->draw(myCircle);
 	}
+
+	myText.setPosition(10.f, 10.f);
+	myText.setString("Tris: " + std::to_string(myTris.size()));
+	aWindow->draw(myText);
+
+	myText.setPosition(10.f, 30.f);
+	myText.setString("Vertices: " + std::to_string(myVertices.size()));
+	aWindow->draw(myText);
+
+	myText.setPosition(10.f, 50.f);
+	myText.setString("Edges: " + std::to_string(myEdges.size()));
+	aWindow->draw(myText);
 }
 
 std::vector<CNavmesh::SEdge*> CNavmesh::GetIntersectingEdgesWith(Math::SLineSegment& aLine)
