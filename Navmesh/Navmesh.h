@@ -7,6 +7,8 @@
 #include "LineDrawer.h"
 #include "SFML/Graphics/Shader.hpp"
 
+#include "SFML/Graphics/Text.hpp"
+
 #define VERTEX_COUNT 2
 #define EDGE_COUNT 3
 
@@ -83,4 +85,7 @@ private:
 	sf::CircleShape myCircle;
 
 	sf::Shader myTriangleShader;
+	sf::Font myFont;
+	sf::Text myText;
+	
 };
