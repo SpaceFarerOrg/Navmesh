@@ -138,7 +138,7 @@ namespace Math
 	{
 		std::random_device device;
 		std::mt19937 generator(device());
-		std::uniform_real_distribution<float> distributor(0.f, 1.f);
+		std::uniform_real_distribution<float> distributor(0.f, 255.f);
 
 		float val = distributor(generator);
 		return val;

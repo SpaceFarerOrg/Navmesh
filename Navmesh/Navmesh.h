@@ -55,6 +55,7 @@ public:
 			myEdges[2] = aThree;
 		}
 		std::array<SEdge*, EDGE_COUNT> myEdges;
+		sf::Color myColor;
 	};
 
 public:

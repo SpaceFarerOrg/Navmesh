@@ -26,12 +26,13 @@ void CNavmesh::Init()
 	myEdges[0].myOwnerTriangle[0] = &myTris[0];
 	myEdges[1].myOwnerTriangle[0] = &myTris[0];
 	myEdges[2].myOwnerTriangle[0] = &myTris[0];
+	myTris.back().myColor = sf::Color(Math::RandomFloat(), Math::RandomFloat(), Math::RandomFloat(), 1.0f);
 
 	myTris.push_back({ &myEdges[3], &myEdges[4], &myEdges[2] });
 	myEdges[3].myOwnerTriangle[0] = &myTris[1];
 	myEdges[4].myOwnerTriangle[0] = &myTris[1];
 	myEdges[2].myOwnerTriangle[1] = &myTris[1];
-
+	myTris.back().myColor = sf::Color(Math::RandomFloat(), Math::RandomFloat(), Math::RandomFloat(), 1.0f);
 
 	myCircle.setFillColor(sf::Color::Red);
 	myCircle.setRadius(8.f);
@@ -75,7 +76,7 @@ void CNavmesh::Render(sf::RenderWindow * aWindow)
 		triangle.append(myTris[i].myEdges[1]->myVertices[0]->myPosition);
 		triangle.append(myTris[i].myEdges[2]->myVertices[0]->myPosition);
 
-		myTriangleShader.setUniform("color", sf::Glsl::Vec4(Math::RandomFloat(), Math::RandomFloat(), Math::RandomFloat(),1.f));
+		myTriangleShader.setUniform("color", sf::Glsl::Vec4(myTris[i].myColor.r / 255.f, myTris[i].myColor.g / 255.f, myTris[i].myColor.b / 255.f, 1.0f));
 		aWindow->draw(&triangle[0], 3, sf::TrianglesStrip, &myTriangleShader);
 	}
 }
